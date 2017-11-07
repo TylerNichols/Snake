@@ -1,6 +1,8 @@
 #lang racket/base
 (require 2htdp/universe)
 (require 2htdp/image)
+(require 2htdp/image)
+
 ;; Here is the source code for the game Snake written in Racket
 ;; This is a good introduction to basic Racket/Scheme code and also
 ;; shows the power and ease of creating a simple game in a very fun and
@@ -59,8 +61,7 @@
 ;; x -> the x location of the part
 ;; y -> the y location of the part
 (define-struct part (x y))
-
-(define part1 (make-part 15 15))
+(define apart (make-part 15 15))
 
 ;; The next thing we need is a direction.
 ;; A direction can be represented multiple ways, but for simplicity we will use
@@ -78,7 +79,7 @@
 ;; parts -> A list of part
 ;; direction -> a direction
 (define-struct snake (parts direction))
-(define snake1 (make-snake (list part1) "up"))
+(define asnake (make-snake (list apart) "up"))
 
 ;; We also need the food for the snake.
 ;; Like a part, it also is just an x and y location on our grid.
@@ -89,32 +90,51 @@
 ;; x -> the x location of the food
 ;; y -> the y location of the food
 (define-struct food (x y))
-(define food1 (make-food 20 20))
+(define afood (make-food 20 20))
 
 ;; [snake-world]
+;; snake -> the snake
+;; foods -> the list of food 
 (define-struct snake-world (snake foods))
-(define world1 (make-snake-world snake1 (list food1)))
+(define aworld (make-snake-world asnake (list afood)))
 
 ;; It's as easy as that. We have defined all necessary structures
 ;; and constants for our snake game.
 
 ;; Alright! now it's time to start making things draw.
 
-;; handle-tick:
-(define (handle-tick a-snake-world)
-  a-snake-world)
+;; handle-tick: [snake-world] -> [snake-world]
+(define (handle-tick sw)
+  sw)
 
-;; render-world
-(define (render-world a-snake-world)
-  background)
+;; render-part: [part] [image] -> [image]
+(define (render-part part background )
+  (place-image
+   (square tile-size "solid" "slateblue")
+   (* tile-size (part-x part))
+   (* tile-size (part-y part))
+   background))
+
+;; render-parts: [list of parts] [image] -> [image]
+(define (render-parts lop background)
+  (foldr render-part background lop))
+
+;; render-snake: [snake-world] [image] -> [image]
+(define (render-snake sw background)
+  (render-parts
+   (snake-parts (snake-world-snake sw))
+   background))
+  
+;; render-world: [snake-world] -> [image]
+(define (render-world sw)
+  (render-snake sw background))
 
 ;; big-bang main fn
-
-(define (main a-snake-world)
-  (big-bang a-snake-world
-   (on-tick handle-tick)
-   (to-draw render-world)))
-
+(define (main sw)
+  (big-bang sw
+            (on-tick handle-tick)
+            (to-draw render-world)))
 
 
+(main aworld)
 
