@@ -1,4 +1,6 @@
 #lang racket/base
+(require 2htdp/universe)
+(require 2htdp/image)
 ;; Here is the source code for the game Snake written in Racket
 ;; This is a good introduction to basic Racket/Scheme code and also
 ;; shows the power and ease of creating a simple game in a very fun and
@@ -30,6 +32,11 @@
 ;; the size of the board, the game will be written to be board size agnostic.
 (define board-width 30)
 (define board-height 30)
+(define tile-size 15)
+
+(define background (empty-scene
+                    (* board-width tile-size)
+                    (* board-height tile-size)))
 
 ;; We will also define how many parts a food adds to a snake
 (define food-value 3)
@@ -53,6 +60,8 @@
 ;; y -> the y location of the part
 (define-struct part (x y))
 
+(define part1 (make-part 15 15))
+
 ;; The next thing we need is a direction.
 ;; A direction can be represented multiple ways, but for simplicity we will use
 ;; a string. For clarity sake, I will explicitly define the definition here
@@ -69,6 +78,7 @@
 ;; parts -> A list of part
 ;; direction -> a direction
 (define-struct snake (parts direction))
+(define snake1 (make-snake (list part1) "up"))
 
 ;; We also need the food for the snake.
 ;; Like a part, it also is just an x and y location on our grid.
@@ -79,9 +89,32 @@
 ;; x -> the x location of the food
 ;; y -> the y location of the food
 (define-struct food (x y))
+(define food1 (make-food 20 20))
+
+;; [snake-world]
+(define-struct snake-world (snake foods))
+(define world1 (make-snake-world snake1 (list food1)))
 
 ;; It's as easy as that. We have defined all necessary structures
 ;; and constants for our snake game.
 
 ;; Alright! now it's time to start making things draw.
+
+;; handle-tick:
+(define (handle-tick a-snake-world)
+  a-snake-world)
+
+;; render-world
+(define (render-world a-snake-world)
+  background)
+
+;; big-bang main fn
+
+(define (main a-snake-world)
+  (big-bang a-snake-world
+   (on-tick handle-tick)
+   (to-draw render-world)))
+
+
+
 
