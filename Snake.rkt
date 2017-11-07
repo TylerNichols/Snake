@@ -61,7 +61,7 @@
 ;; x -> the x location of the part
 ;; y -> the y location of the part
 (define-struct part (x y))
-(define apart (make-part 15 15))
+(define apart (make-part 15 15)) ;; Defining a structure with values
 
 ;; The next thing we need is a direction.
 ;; A direction can be represented multiple ways, but for simplicity we will use
@@ -120,14 +120,35 @@
   (foldr render-part background lop))
 
 ;; render-snake: [snake-world] [image] -> [image]
-(define (render-snake sw background)
+;; I prefer to make my render methods take the world
+;; and then take out the specific part. I like the way
+;; they compose better. Feel free to alter that if
+;; you wish
+(define (render-snake-world-snake sw background)
   (render-parts
    (snake-parts (snake-world-snake sw))
    background))
-  
+
+;; render-food: [food] [image] -> [image]
+(define (render-food food background )
+  (place-image
+   (square tile-size "solid" "red")
+   (* tile-size (food-x food))
+   (* tile-size (food-y food))
+   background))
+
+;; render-foods: [list of foods] [image] -> image
+(define (render-foods lof background)
+  (foldr render-food background lof))
+
+;; render-foods: [snake-world] [image] -> [image]
+(define (render-snake-world-foods sw background)
+  (render-foods (snake-world-foods sw) background))
+   
 ;; render-world: [snake-world] -> [image]
 (define (render-world sw)
-  (render-snake sw background))
+  (render-snake-world-foods sw
+   (render-snake-world-snake sw background)))
 
 ;; big-bang main fn
 (define (main sw)
