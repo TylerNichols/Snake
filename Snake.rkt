@@ -103,12 +103,22 @@
 
 ;; Alright! now it's time to start making things draw.
 
+;; move-snake [snake] -> [snake]
+(define (move-snake snake)
+  snake)
+
+;; move-snake-world-snake [snake-world] -> [snake-world]
+(define (move-snake-world-snake sw)
+  (make-snake-world
+   (move-snake (snake-world-snake sw))
+   (snake-world-foods sw)))
+
 ;; handle-tick: [snake-world] -> [snake-world]
 (define (handle-tick sw)
   sw)
 
 ;; render-part: [part] [image] -> [image]
-(define (render-part part background )
+(define (render-part part background)
   (place-image
    (square tile-size "solid" "slateblue")
    (* tile-size (part-x part))
