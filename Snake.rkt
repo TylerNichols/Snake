@@ -102,19 +102,7 @@
 
 ;; Alright! now it's time to start making things draw.
 
-;; move-snake [snake] -> [snake]
-(define (move-snake snake)
-  snake)
 
-;; move-snake-world-snake [snake-world] -> [snake-world]
-(define (move-snake-world-snake sw)
-  (make-snake-world
-   (move-snake (snake-world-snake sw))
-   (snake-world-foods sw)))
-
-;; handle-tick: [snake-world] -> [snake-world]
-(define (handle-tick sw)
-  sw)
 
 ;; render-part: [part] [image] -> [image]
 (define (render-part part background)
@@ -157,13 +145,67 @@
 ;; render-world: [snake-world] -> [image]
 (define (render-world sw)
   (render-foods-world sw
-   (render-snake-world sw background)))
+                      (render-snake-world sw background)))
+
+;; change-snake-direction [snake] [direction] -> [snake]
+(define (change-snake-direction asnake direction)
+  (make-snake (snake-parts asnake) direction))
+
+;; change-snake-direction-world: [snake-world] [direction] -> [snake-world]
+(define (change-snake-direction-world sw direction)
+  (make-snake-world
+   (change-snake-direction (snake-world-snake sw) direction)
+   (snake-world-foods sw)))
 
 ;; handle-key: [snake-world] [key] -> [snake-world]
 (define (handle-key sw akey)
   (cond
-    [(= akey "up") (make-
-  sw)
+    [(or (key=? akey "up")
+         (key=? akey "down")
+         (key=? akey "left")
+         (key=? akey "right")) (change-snake-direction-world sw akey)]
+    [else sw]))
+
+;; remove-last-part: [list-of-parts] -> [list-of-parts]
+(define (remove-last-part lop)
+  (cond [(null? lop) '()]
+        [(null? (cdr lop)) '()]
+        [else (cons (car lop)
+                    (remove-last-part (cdr lop)))]))
+  
+
+;; add-head-part-dxdy: [list-of-parts] [integer] [integer] -> [list-of-parts]
+(define (add-head-part-dxdy lop dx dy)
+  (cons (make-part
+         (+ (part-x (car lop)) dx)
+         (+ (part-y (car lop)) dy)) lop))
+
+;; add-head-part: [list-of-parts] [direction] -> [list-of-parts]
+(define (add-head-part lop direction)
+  (cond
+    [(string=? direction "up") (add-head-part-dxdy lop 0 -1)]
+    [(string=? direction "down") (add-head-part-dxdy lop 0 1)]
+    [(string=? direction "left") (add-head-part-dxdy lop -1 0)]
+    [(string=? direction "right") (add-head-part-dxdy lop 1 0)]))
+
+;; move-snake [snake] -> [snake]
+(define (move-snake snake)
+  (make-snake
+   (remove-last-part
+    (add-head-part (snake-parts snake) (snake-direction snake))) ;; order matters!
+   (snake-direction snake)));)
+
+;; move-snake-world: [snake-world] -> [snake-world]
+(define (move-snake-world sw)
+  (make-snake-world
+   (move-snake (snake-world-snake sw))
+   (snake-world-foods sw)))
+
+
+;; handle-tick: [snake-world] -> [snake-world]
+(define (handle-tick sw)
+  (move-snake-world sw));;(move-snake-world sw))
+
 
 ;; big-bang main fn
 (define (main sw)
