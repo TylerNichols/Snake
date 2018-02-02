@@ -60,7 +60,12 @@
 ;; x -> the x location of the part
 ;; y -> the y location of the part
 (define-struct part (x y))
-(define apart (make-part 15 15)) ;; Defining a structure with values
+(define apart1 (make-part 15 15)) ;; Defining a structure with values
+(define apart2 (make-part 15 16)) ;; Defining a structure with values
+(define apart3 (make-part 15 17)) ;; Defining a structure with values
+(define apart4 (make-part 15 18)) ;; Defining a structure with values
+(define apart5 (make-part 15 19)) ;; Defining a structure with values
+(define apart6 (make-part 15 20)) ;; Defining a structure with values
 
 ;; The next thing we need is a direction.
 ;; A direction can be represented multiple ways, but for simplicity we will use
@@ -78,7 +83,10 @@
 ;; parts -> A list of part
 ;; direction -> a direction
 (define-struct snake (parts direction))
-(define asnake (make-snake (list apart) "up"))
+(define asnake
+  (make-snake
+   (list apart1 apart2 apart3 apart4 apart5 apart6)
+   "up"))
 
 ;; We also need the food for the snake.
 ;; Like a part, it also is just an x and y location on our grid.
@@ -168,7 +176,7 @@
 
 ;; remove-last-part: [list-of-parts] -> [list-of-parts]
 (define (remove-last-part lop)
-  (cond [(null? lop) '()]
+  (cond [(null? lop) '()] ;; should never happen... :)
         [(null? (cdr lop)) '()]
         [else (cons (car lop)
                     (remove-last-part (cdr lop)))]))
