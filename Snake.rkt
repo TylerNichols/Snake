@@ -1,7 +1,6 @@
 #lang racket/base
 (require 2htdp/universe)
 (require 2htdp/image)
-(require 2htdp/image)
 
 ;; Here is the source code for the game Snake written in Racket
 ;; This is a good introduction to basic Racket/Scheme code and also
@@ -134,7 +133,7 @@
 ;; and then take out the specific part. I like the way
 ;; they compose better. Feel free to alter that if
 ;; you wish
-(define (render-snake-world-snake sw background)
+(define (render-snake-world sw background)
   (render-parts
    (snake-parts (snake-world-snake sw))
    background))
@@ -151,20 +150,27 @@
 (define (render-foods lof background)
   (foldr render-food background lof))
 
-;; render-foods: [snake-world] [image] -> [image]
-(define (render-snake-world-foods sw background)
+;; render-foods-world: [snake-world] [image] -> [image]
+(define (render-foods-world sw background)
   (render-foods (snake-world-foods sw) background))
    
 ;; render-world: [snake-world] -> [image]
 (define (render-world sw)
-  (render-snake-world-foods sw
-   (render-snake-world-snake sw background)))
+  (render-foods-world sw
+   (render-snake-world sw background)))
+
+;; handle-key: [snake-world] [key] -> [snake-world]
+(define (handle-key sw akey)
+  (cond
+    [(= akey "up") (make-
+  sw)
 
 ;; big-bang main fn
 (define (main sw)
   (big-bang sw
             (on-tick handle-tick)
-            (to-draw render-world)))
+            (to-draw render-world)
+            (on-key handle-key)))
 
 
 (main aworld)
