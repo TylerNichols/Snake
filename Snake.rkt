@@ -45,9 +45,11 @@
 (define board-height 30)
 (define tile-size 16)
 
-(define background (empty-scene
-                    (+ (* board-width tile-size) (/ tile-size 2))
-                    (+ (* board-height tile-size) (/ tile-size 2))))
+(define background-scene (empty-scene
+                          (+ (* board-width tile-size) tile-size)
+                          (+ (* board-height tile-size) tile-size)))
+
+(define background background-scene)
 
 ;; We will also define how many parts a food adds to a snake
 (define food-value 3)
@@ -206,10 +208,15 @@
 ;; handle-key: [snake-world] [key] -> [snake-world]
 (define (handle-key sw akey)
   (cond
-    [(or (key=? akey "up")
-         (key=? akey "down")
-         (key=? akey "left")
-         (key=? akey "right")) (change-snake-direction-world sw akey)]
+    [(or (and (key=? akey "up")
+              (not (string=? (snake-direction (snake-world-snake sw)) "down"))) 
+         (and (key=? akey "down")
+              (not (string=? (snake-direction (snake-world-snake sw)) "up"))) 
+         (and (key=? akey "left")
+              (not (string=? (snake-direction (snake-world-snake sw)) "right"))) 
+         (and (key=? akey "right")
+              (not (string=? (snake-direction (snake-world-snake sw)) "left"))))
+     (change-snake-direction-world sw akey)]
     [else sw]))
 
 ;;====================================================================================================
@@ -330,7 +337,8 @@
 
 ;; spawn-random-food: [] -> [food]
 (define (spawn-random-food)
-  (make-food (random board-width) (random board-height)))
+  (make-food (+ 2 (random (- board-width 4)))
+             (+ 2 (random (- board-height 4)))))
               
 ;; spawn-food: [snake-world] -> [list-of-food]
 (define (spawn-food sw)
