@@ -33,12 +33,11 @@
 ;; errors when we want to alter the size the board next time
 ;; we run the file. Another reason is because just leaving a
 ;; number floating around in your code (known as a
-;; "magic number") will make it hard to read and understand
-;; what the number actually represents.
+;; "magic number") will reduce maintainability and readability
+;; of the source code
 
 
 ;; Constants that define size of the board
-;; Notice here, we are using 'define' to give a variable a constant value.
 ;; For this game we will have only one board. Feel free to mess around with
 ;; the size of the board, the game will be written to be board size agnostic.
 (define board-width 30)
@@ -49,9 +48,33 @@
                           (+ (* board-width tile-size) tile-size)
                           (+ (* board-height tile-size) tile-size)))
 
-(define background background-scene)
+(define vertical-wall (rectangle
+                       (/ tile-size 2)
+                       (+ (/ tile-size 2) (* (+ 1 board-height) tile-size))
+                       "solid" "black"))
 
-;; We will also define how many parts a food adds to a snake
+(define horizontal-wall (rectangle
+                         (+ (/ tile-size 2) (* (+ 1 board-width) tile-size))
+                         (/ tile-size 2)
+                         "solid" "black"))
+
+(define background-with-vertical-walls
+  (overlay/xy
+   horizontal-wall 0 (- (* (+ 1 board-height) tile-size))
+   (overlay/xy
+    horizontal-wall 0 0
+    (overlay/xy
+     vertical-wall 0 0
+     (overlay/xy
+      vertical-wall (- (* (+ 1 board-width) tile-size)) 0 background-scene)))))
+
+(define background background-with-vertical-walls)
+
+;(define background-with-all-walls
+;  (overlay/xy
+
+;; We will also define how many parts a food adds to a snake and
+;; a spawn chance we will use later to randomly spawn food
 (define food-value 3)
 (define food-spawn-chance 50)
 
@@ -71,6 +94,9 @@
 ;; A snake has:
 ;;   Body parts (a head and tail parts)
 ;;   A direction that it is moving
+;;   A buffer (how many parts we have to add to the snake)
+;;     when a snake eats a food, it grows an extra part whenever it moves
+;;     we need to keep track of how many parts we have to add
 ;; That's really it. So, we need to figure out how to best represent those parts.
 
 ;; The first thing we can focus on are the body parts;
@@ -90,7 +116,7 @@
 
 ;; The next thing we need is a direction.
 ;; A direction can be represented multiple ways, but for simplicity we will use
-;; a string. For clarity sake, I will explicitly define the definition here
+;; a string. For clarity sake, I will explicitly enumerate the definition here
 
 ;; A direction is either:
 ;;   - "up"
@@ -131,9 +157,6 @@
 ;; It's as easy as that. We have defined all necessary structures
 ;; and constants for our snake game.
 
-
-
-
 ;;====================================================================================================
 ;;  ____                         _               
 ;; |  _ \  _ __  __ _ __      __(_) _ __    __ _ 
@@ -157,10 +180,6 @@
   (foldr render-part background lop))
 
 ;; render-snake: [snake-world] [image] -> [image]
-;; I prefer to make my render methods take the world
-;; and then take out the specific part. I like the way
-;; they compose better. Feel free to alter that if
-;; you wish
 (define (render-snake-world sw background)
   (render-parts
    (snake-parts (snake-world-snake sw))
@@ -342,7 +361,7 @@
               
 ;; spawn-food: [snake-world] -> [list-of-food]
 (define (spawn-food sw)
-  (if (or (null? (car (snake-world-foods sw)))
+  (if (or (null? (snake-world-foods sw))
           (= (random food-spawn-chance) 1))
       (cons (spawn-random-food) (snake-world-foods sw))
       (snake-world-foods sw)))
