@@ -18,6 +18,15 @@
 ;; to the newer versions such as slither.io with non grid movement. We
 ;; will focus on the grid version for this tutorial.
 
+
+;;====================================================================================================
+;;   ____                    _                 _        
+;;  / ___| ___   _ __   ___ | |_  __ _  _ __  | |_  ___ 
+;; | |    / _ \ | '_ \ / __|| __|/ _` || '_ \ | __|/ __|
+;; | |___| (_) || | | |\__ \| |_| (_| || | | || |_ \__ \
+;;  \____|\___/ |_| |_||___/ \__|\__,_||_| |_| \__||___/
+;;
+;;====================================================================================================
 ;; The first thing we want to do is define some constants.
 ;; You may wonder -- if these things are constant, why
 ;; would we define a variable? Well one reason is to reduce
@@ -26,6 +35,7 @@
 ;; number floating around in your code (known as a
 ;; "magic number") will make it hard to read and understand
 ;; what the number actually represents.
+
 
 ;; Constants that define size of the board
 ;; Notice here, we are using 'define' to give a variable a constant value.
@@ -42,6 +52,14 @@
 ;; We will also define how many parts a food adds to a snake
 (define food-value 3)
 
+;;====================================================================================================
+;;  ____   _                       _                          
+;; / ___| | |_  _ __  _   _   ___ | |_  _   _  _ __  ___  ___ 
+;; \___ \ | __|| '__|| | | | / __|| __|| | | || '__|/ _ \/ __|
+;;  ___) || |_ | |   | |_| || (__ | |_ | |_| || |  |  __/\__ \
+;; |____/  \__||_|    \__,_| \___| \__| \__,_||_|   \___||___/
+;;
+;;====================================================================================================
 ;; After we define our constants, we want to think of the minimal ammount
 ;; of data we need to simulate the game. Since this is a snake game, we need
 ;; to focus on a few things. We already have board dimensions taken care of,
@@ -108,9 +126,18 @@
 ;; It's as easy as that. We have defined all necessary structures
 ;; and constants for our snake game.
 
+
+
+
+;;====================================================================================================
+;;  ____                         _               
+;; |  _ \  _ __  __ _ __      __(_) _ __    __ _ 
+;; | | | || '__|/ _` |\ \ /\ / /| || '_ \  / _` |
+;; | |_| || |  | (_| | \ V  V / | || | | || (_| |
+;; |____/ |_|   \__,_|  \_/\_/  |_||_| |_| \__, |
+;;                                         |___/
+;;====================================================================================================
 ;; Alright! now it's time to start making things draw.
-
-
 
 ;; render-part: [part] [image] -> [image]
 (define (render-part part background)
@@ -155,6 +182,15 @@
   (render-foods-world sw
                       (render-snake-world sw background)))
 
+;;====================================================================================================
+;;  ___                       _   
+;; |_ _| _ __   _ __   _   _ | |_ 
+;;  | | | '_ \ | '_ \ | | | || __|
+;;  | | | | | || |_) || |_| || |_ 
+;; |___||_| |_|| .__/  \__,_| \__|
+;;             |_|  
+;;====================================================================================================
+
 ;; change-snake-direction [snake] [direction] -> [snake]
 (define (change-snake-direction asnake direction)
   (make-snake (snake-parts asnake) direction))
@@ -174,13 +210,21 @@
          (key=? akey "right")) (change-snake-direction-world sw akey)]
     [else sw]))
 
+;;====================================================================================================
+;;  _____  _        _    
+;; |_   _|(_)  ___ | | __
+;;   | |  | | / __|| |/ /
+;;   | |  | || (__ |   < 
+;;   |_|  |_| \___||_|\_\
+;;
+;;====================================================================================================
+                 
 ;; remove-last-part: [list-of-parts] -> [list-of-parts]
 (define (remove-last-part lop)
   (cond [(null? lop) '()] ;; should never happen... :)
         [(null? (cdr lop)) '()]
         [else (cons (car lop)
                     (remove-last-part (cdr lop)))]))
-  
 
 ;; add-head-part-dxdy: [list-of-parts] [integer] [integer] -> [list-of-parts]
 (define (add-head-part-dxdy lop dx dy)
@@ -214,6 +258,14 @@
 (define (handle-tick sw)
   (move-snake-world sw));;(move-snake-world sw))
 
+;;====================================================================================================
+;;   ____                           _                         
+;;  / ___|  __ _  _ __ ___    ___  | |     ___    ___   _ __  
+;; | |  _  / _` || '_ ` _ \  / _ \ | |    / _ \  / _ \ | '_ \ 
+;; | |_| || (_| || | | | | ||  __/ | |___| (_) || (_) || |_) |
+;;  \____| \__,_||_| |_| |_| \___| |_____|\___/  \___/ | .__/ 
+;;                                                     |_| 
+;;====================================================================================================
 
 ;; big-bang main fn
 (define (main sw)
