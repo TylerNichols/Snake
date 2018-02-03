@@ -100,11 +100,13 @@
 ;; [snake]
 ;; parts -> A list of part
 ;; direction -> a direction
-(define-struct snake (parts direction))
+;; buffer -> number of parts left to add to the snake (more on this later)
+(define-struct snake (parts direction buffer))
 (define asnake
   (make-snake
    (list apart1 apart2 apart3 apart4 apart5 apart6)
-   "up"))
+   "up"
+   0))
 
 ;; We also need the food for the snake.
 ;; Like a part, it also is just an x and y location on our grid.
@@ -193,7 +195,7 @@
 
 ;; change-snake-direction [snake] [direction] -> [snake]
 (define (change-snake-direction asnake direction)
-  (make-snake (snake-parts asnake) direction))
+  (make-snake (snake-parts asnake) direction (snake-buffer asnake)))
 
 ;; change-snake-direction-world: [snake-world] [direction] -> [snake-world]
 (define (change-snake-direction-world sw direction)
@@ -222,9 +224,18 @@
 ;; remove-last-part: [list-of-parts] -> [list-of-parts]
 (define (remove-last-part lop)
   (cond [(null? lop) '()] ;; should never happen... :)
-        [(null? (cdr lop)) '()]
+        [(null? (cdr lop)) '()] ;; if we have buffered parts, don't remove this on
         [else (cons (car lop)
                     (remove-last-part (cdr lop)))]))
+
+;; remove-snake-tail
+(define (remove-snake-tail snake)
+  (if (> (snake-buffer snake) 0)
+      snake
+      (make-snake
+       (remove-last-part (snake-parts snake))
+       (snake-direction snake)
+       (snake-buffer snake))))
 
 ;; add-head-part-dxdy: [list-of-parts] [integer] [integer] -> [list-of-parts]
 (define (add-head-part-dxdy lop dx dy)
@@ -240,23 +251,75 @@
     [(string=? direction "left") (add-head-part-dxdy lop -1 0)]
     [(string=? direction "right") (add-head-part-dxdy lop 1 0)]))
 
-;; move-snake [snake] -> [snake]
-(define (move-snake snake)
+;; remove-last-part--
+
+;; move-snake: [snake] -> [snake]
+(define (move-snake-head snake)
   (make-snake
-   (remove-last-part
-    (add-head-part (snake-parts snake) (snake-direction snake))) ;; order matters!
-   (snake-direction snake)));)
+   (add-head-part
+    (snake-parts snake)
+    (snake-direction snake)) ;; order matters!
+   (snake-direction snake)
+   (snake-buffer snake)))
 
 ;; move-snake-world: [snake-world] -> [snake-world]
 (define (move-snake-world sw)
   (make-snake-world
-   (move-snake (snake-world-snake sw))
+   (remove-snake-tail (move-snake-head (snake-world-snake sw)))
    (snake-world-foods sw)))
 
+;; add-parts: [snake] -> [snake]
+(define (add-parts snake)
+  (make-snake
+   (snake-parts snake)
+   (snake-direction snake)
+   (+ food-value (snake-buffer snake))))
 
+;; collides? [part] [food] -> [boolean]
+(define (collides? part food)
+  (and
+   (= (part-x part) (food-x food))
+   (= (part-y part) (food-y food))))
+
+;; any-collides?
+(define (snake-head-collides? snake-head foods)
+  (ormap
+   (lambda (x) (collides? snake-head x))
+   foods))
+
+;; grow-if-collides [snake] [foods] -> [snake]
+(define (grow-if-collides snake foods)
+  (if
+   (snake-head-collides? (car (snake-parts snake)) foods)
+   (add-parts snake)
+   snake))
+
+;; grow-snake-world [snake-world] -> [snake-world]
+(define (grow-snake-world sw)
+  (make-snake-world
+   (grow-if-collides (snake-world-snake sw) (snake-world-foods sw))
+   (snake-world-foods sw)))
+
+;; reduce-snake-buffer: [snake] -> [snake]
+(define (reduce-snake-buffer snake)
+  (make-snake
+   (snake-parts snake)
+   (snake-direction snake)
+   (if (> (snake-buffer snake) 0)
+       (- (snake-buffer snake) 1)
+       (snake-buffer snake))))
+
+;; reduce-snake-buffer-world [snake-world] -> [snake-world]
+(define (reduce-snake-buffer-world sw)
+  (make-snake-world
+   (reduce-snake-buffer (snake-world-snake sw))
+   (snake-world-foods sw)))
+  
 ;; handle-tick: [snake-world] -> [snake-world]
 (define (handle-tick sw)
-  (move-snake-world sw));;(move-snake-world sw))
+  (reduce-snake-buffer-world
+   (grow-snake-world
+    (move-snake-world sw))));;(move-snake-world sw))
 
 ;;====================================================================================================
 ;;   ____                           _                         
@@ -274,6 +337,5 @@
             (to-draw render-world)
             (on-key handle-key)))
 
-
-(main aworld)
+(main aworld) ;; run the game
 
