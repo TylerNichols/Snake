@@ -43,14 +43,15 @@
 ;; the size of the board, the game will be written to be board size agnostic.
 (define board-width 30)
 (define board-height 30)
-(define tile-size 15)
+(define tile-size 16)
 
 (define background (empty-scene
-                    (* board-width tile-size)
-                    (* board-height tile-size)))
+                    (+ (* board-width tile-size) (/ tile-size 2))
+                    (+ (* board-height tile-size) (/ tile-size 2))))
 
 ;; We will also define how many parts a food adds to a snake
 (define food-value 3)
+(define food-spawn-chance 50)
 
 ;;====================================================================================================
 ;;  ____   _                       _                          
@@ -181,8 +182,7 @@
    
 ;; render-world: [snake-world] -> [image]
 (define (render-world sw)
-  (render-foods-world sw
-                      (render-snake-world sw background)))
+  (render-foods-world sw (render-snake-world sw background)))
 
 ;;====================================================================================================
 ;;  ___                       _   
@@ -251,8 +251,6 @@
     [(string=? direction "left") (add-head-part-dxdy lop -1 0)]
     [(string=? direction "right") (add-head-part-dxdy lop 1 0)]))
 
-;; remove-last-part--
-
 ;; move-snake: [snake] -> [snake]
 (define (move-snake-head snake)
   (make-snake
@@ -281,20 +279,20 @@
    (= (part-x part) (food-x food))
    (= (part-y part) (food-y food))))
 
-;; any-collides?
+;; any-collides?: [part] [list-of-food] -> [boolean]
 (define (snake-head-collides? snake-head foods)
   (ormap
    (lambda (x) (collides? snake-head x))
    foods))
 
-;; grow-if-collides [snake] [foods] -> [snake]
+;; grow-if-collides: [snake] [foods] -> [snake]
 (define (grow-if-collides snake foods)
   (if
    (snake-head-collides? (car (snake-parts snake)) foods)
    (add-parts snake)
    snake))
 
-;; grow-snake-world [snake-world] -> [snake-world]
+;; grow-snake-world: [snake-world] -> [snake-world]
 (define (grow-snake-world sw)
   (make-snake-world
    (grow-if-collides (snake-world-snake sw) (snake-world-foods sw))
@@ -309,17 +307,51 @@
        (- (snake-buffer snake) 1)
        (snake-buffer snake))))
 
-;; reduce-snake-buffer-world [snake-world] -> [snake-world]
+;; reduce-snake-buffer-world: [snake-world] -> [snake-world]
 (define (reduce-snake-buffer-world sw)
   (make-snake-world
    (reduce-snake-buffer (snake-world-snake sw))
    (snake-world-foods sw)))
+
+;; destroy-food: [snake-world] -> [list-of-food]
+(define (destroy-food sw)
+  (filter
+   (lambda (x) (not
+                (collides?
+                 (car (snake-parts (snake-world-snake sw)))
+                 x)))
+   (snake-world-foods sw)))
+
+;; destroy-food-world: [snake-world] -> [snake-world]
+(define (destroy-food-world sw)
+  (make-snake-world
+   (snake-world-snake sw)
+   (destroy-food sw)))
+
+;; spawn-random-food: [] -> [food]
+(define (spawn-random-food)
+  (make-food (random board-width) (random board-height)))
+              
+;; spawn-food: [snake-world] -> [list-of-food]
+(define (spawn-food sw)
+  (if (or (null? (car (snake-world-foods sw)))
+          (= (random food-spawn-chance) 1))
+      (cons (spawn-random-food) (snake-world-foods sw))
+      (snake-world-foods sw)))
+
+;; spawn-food-world: [snake-world] -> [snake-world]
+(define (spawn-food-world sw)
+  (make-snake-world
+   (snake-world-snake sw)
+   (spawn-food sw)))
   
 ;; handle-tick: [snake-world] -> [snake-world]
 (define (handle-tick sw)
-  (reduce-snake-buffer-world
-   (grow-snake-world
-    (move-snake-world sw))));;(move-snake-world sw))
+  (spawn-food-world
+   (destroy-food-world
+    (reduce-snake-buffer-world
+     (grow-snake-world
+      (move-snake-world sw))))))
 
 ;;====================================================================================================
 ;;   ____                           _                         
