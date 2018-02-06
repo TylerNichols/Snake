@@ -168,6 +168,25 @@
 ;;==============================================================================
 ;; Alright! now it's time to start making things draw.
 
+;; count-parts: [list-of-parts] -> [number]
+(define (count-parts lop)
+  (cond [(or (null? lop)
+             (null? (car lop))) 0]
+        [else (+ 1 (count-parts (cdr lop)))]))
+
+;; render-score: [snake] [image] -> [image]
+(define (render-score snake background)
+  (overlay/align "middle" "top"
+                 (text
+                  (number->string (count-parts (snake-parts snake)))
+                  30
+                  "black")
+                 background))
+
+;; render-score-world: [snake-world] [image] -> [image]
+(define (render-score-world sw background)
+  (render-score (snake-world-snake sw) background))
+
 ;; render-part: [part] [image] -> [image]
 (define (render-part part background)
   (place-image
@@ -204,7 +223,9 @@
    
 ;; render-world: [snake-world] -> [image]
 (define (render-world sw)
-  (render-foods-world sw (render-snake-world sw background)))
+  (render-score-world sw
+                      (render-foods-world sw
+                                          (render-snake-world sw background))))
 
 ;;==============================================================================
 ;;  ___                       _   
