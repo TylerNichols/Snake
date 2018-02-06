@@ -272,13 +272,13 @@
 ;; remove-last-part: [list-of-parts] -> [list-of-parts]
 (define (remove-last-part lop)
   (cond [(null? lop) '()] ;; should never happen... :)
-        [(null? (cdr lop)) '()] ;; if we have buffered parts, don't remove part
+        [(null? (cdr lop)) '()] 
         [else (cons (car lop)
                     (remove-last-part (cdr lop)))]))
 
 ;; remove-snake-tail
 (define (remove-snake-tail snake)
-  (if (> (snake-buffer snake) 0)
+  (if (> (snake-buffer snake) 0) ;; if we have buffered parts, don't remove part
       snake
       (make-snake
        (remove-last-part (snake-parts snake))
@@ -401,7 +401,6 @@
     (reduce-snake-buffer-world
      (grow-snake-world
       (move-snake-world sw))))))
-
 
 
 ;;==============================================================================
