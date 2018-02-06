@@ -5,12 +5,11 @@
 ;; Here is the source code for the game Snake written in Racket
 ;; This is a good introduction to basic Racket/Scheme code and also
 ;; shows the power and ease of creating a simple game in a very fun and
-;; productive language. The source will be overly commented as this
-;; is going to be targetted to people of all levels. If there is any
-;; syntax that does not make sense, I highly suggest you consult the
-;; Racket documentation, as it is the best documentation ever! This is
-;; reminiscent of a project you could see in a intro level university
-;; course that focuses on the Racket language.
+;; productive language.  If there is any syntax that does not make sense,
+;; I highly suggest you consult the  Racket documentation,
+;; as it is the best documentation ever! This is reminiscent
+;; of a project you could see in a intro level university course
+;; that focuses on the Racket language.
 
 ;; What is Snake?
 ;; Snake is a game that everyone should be familiar with. There are
@@ -18,6 +17,10 @@
 ;; to the newer versions such as slither.io with non grid movement. We
 ;; will focus on the grid version for this tutorial.
 
+;; If you want to see how it all comes together, look for the
+;; "big-bang" function at the bottom of the project. Again,
+;; If anything looks strange,  take a look at the Racket documentation
+;; at https://docs.racket-lang.org/
 
 ;;==============================================================================
 ;;   ____                    _                 _        
