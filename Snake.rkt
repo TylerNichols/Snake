@@ -50,11 +50,11 @@
 
 (define vertical-wall (rectangle
                        (/ tile-size 2)
-                       (+ (/ tile-size 2) (* (+ .5 board-height) tile-size))
+                       (* (+ 1 board-height) tile-size)
                        "solid" "black"))
 
 (define horizontal-wall (rectangle
-                         (+ (/ tile-size 2) (* (+ .5 board-width) tile-size))
+                         (* (+ 1 board-width) tile-size)
                          (/ tile-size 2)
                          "solid" "black"))
 
