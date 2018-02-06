@@ -40,33 +40,33 @@
 ;; Constants that define size of the board
 ;; For this game we will have only one board. Feel free to mess around with
 ;; the size of the board, the game will be written to be board size agnostic.
-(define board-width 30)
-(define board-height 30)
-(define tile-size 16)
+(define board-width 64)
+(define board-height 64)
+(define tile-size 12)
 
 (define background-scene (empty-scene
-                          (+ (* board-width tile-size) tile-size)
-                          (+ (* board-height tile-size) tile-size)))
+                          (+ (* board-width tile-size) (/ tile-size 2))
+                          (+ (* board-height tile-size) (/ tile-size 2))))
 
 (define vertical-wall (rectangle
                        (/ tile-size 2)
-                       (+ (/ tile-size 2) (* (+ 1 board-height) tile-size))
+                       (+ (/ tile-size 2) (* (+ .5 board-height) tile-size))
                        "solid" "black"))
 
 (define horizontal-wall (rectangle
-                         (+ (/ tile-size 2) (* (+ 1 board-width) tile-size))
+                         (+ (/ tile-size 2) (* (+ .5 board-width) tile-size))
                          (/ tile-size 2)
                          "solid" "black"))
 
 (define background-with-vertical-walls
   (overlay/xy
-   horizontal-wall 0 (- (* (+ 1 board-height) tile-size))
+   horizontal-wall 0 (- (* (+ .5 board-height) tile-size))
    (overlay/xy
     horizontal-wall 0 0
     (overlay/xy
      vertical-wall 0 0
      (overlay/xy
-      vertical-wall (- (* (+ 1 board-width) tile-size)) 0 background-scene)))))
+      vertical-wall (- (* (+ .5 board-width) tile-size)) 0 background-scene)))))
 
 (define background background-with-vertical-walls)
 
@@ -107,12 +107,12 @@
 ;; x -> the x location of the part
 ;; y -> the y location of the part
 (define-struct part (x y))
-(define apart1 (make-part 15 15)) ;; Defining a structure with values
-(define apart2 (make-part 15 16)) ;; Defining a structure with values
-(define apart3 (make-part 15 17)) ;; Defining a structure with values
-(define apart4 (make-part 15 18)) ;; Defining a structure with values
-(define apart5 (make-part 15 19)) ;; Defining a structure with values
-(define apart6 (make-part 15 20)) ;; Defining a structure with values
+(define apart1 (make-part 32 32)) ;; Defining a structure with values
+(define apart2 (make-part 32 33))
+(define apart3 (make-part 32 34))
+(define apart4 (make-part 32 35))
+(define apart5 (make-part 32 36))
+(define apart6 (make-part 32 37))
 
 ;; The next thing we need is a direction.
 ;; A direction can be represented multiple ways, but for simplicity we will use
@@ -380,6 +380,42 @@
      (grow-snake-world
       (move-snake-world sw))))))
 
+
+
+;;====================================================================================================
+;;   ____                            ___                    
+;;  / ___|  __ _  _ __ ___    ___   / _ \ __   __ ___  _ __ 
+;; | |  _  / _` || '_ ` _ \  / _ \ | | | |\ \ / // _ \| '__|
+;; | |_| || (_| || | | | | ||  __/ | |_| | \ V /|  __/| |   
+;;  \____| \__,_||_| |_| |_| \___|  \___/   \_/  \___||_|   
+;;                                                          
+;;====================================================================================================
+
+
+;; snake-collision-wall? [snake-world] -> [boolean]
+(define (snake-collision-wall? sw)
+  (or (not (< 0 (part-x (car (snake-parts (snake-world-snake sw)))) (+ 1 board-width)))
+      (not (< 0 (part-y (car (snake-parts (snake-world-snake sw)))) (+ 1 board-height)))))
+
+;; any-collides? [part] [list-of-parts] -> [boolean]
+(define (any-collides? head lop)
+  (ormap
+   (lambda (body)
+     (and (= (part-x head) (part-x body))
+          (= (part-y head) (part-y body))))
+   lop))
+                
+;; snake-collision-snake? {snake-world] -> [boolean]
+(define (snake-collision-snake? sw)
+  (any-collides?
+   (car (snake-parts (snake-world-snake sw)))
+   (cdr (snake-parts (snake-world-snake sw)))))
+
+;; handle-game-over: [snake-world] -> [boolean]
+(define (handle-game-over sw)
+  (or (snake-collision-wall? sw)
+      (snake-collision-snake? sw)))
+
 ;;====================================================================================================
 ;;   ____                           _                         
 ;;  / ___|  __ _  _ __ ___    ___  | |     ___    ___   _ __  
@@ -394,7 +430,8 @@
   (big-bang sw
             (on-tick handle-tick)
             (to-draw render-world)
-            (on-key handle-key)))
+            (on-key handle-key)
+            (stop-when handle-game-over)))
 
 (main aworld) ;; run the game
 
