@@ -436,4 +436,3 @@
             (stop-when handle-game-over))) ;; handle game over states
 
 (main aworld) ;; run the game
-
