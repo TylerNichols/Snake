@@ -1,5 +1,5 @@
 # Snake
-A snake game written in Racket with beginners in mind
+A snake game written in Racket with readability for beginners in mind
 
 
 Some musings are contained along with the code that will later be combined to create a simple tutorial. 
