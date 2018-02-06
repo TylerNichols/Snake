@@ -31,14 +31,6 @@
 ;;
 ;;==============================================================================
 ;; The first thing we want to do is define some constants.
-;; You may wonder -- if these things are constant, why
-;; would we define a variable? Well one reason is to reduce
-;; errors when we want to alter the size the board next time
-;; we run the file. Another reason is because just leaving a
-;; number floating around in your code (known as a
-;; "magic number") will reduce maintainability and readability
-;; of the source code
-
 
 ;; Constants that define size of the board
 ;; For this game we will have only one board. Feel free to mess around with
