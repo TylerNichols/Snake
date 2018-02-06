@@ -19,14 +19,14 @@
 ;; will focus on the grid version for this tutorial.
 
 
-;;====================================================================================================
+;;==============================================================================
 ;;   ____                    _                 _        
 ;;  / ___| ___   _ __   ___ | |_  __ _  _ __  | |_  ___ 
 ;; | |    / _ \ | '_ \ / __|| __|/ _` || '_ \ | __|/ __|
 ;; | |___| (_) || | | |\__ \| |_| (_| || | | || |_ \__ \
 ;;  \____|\___/ |_| |_||___/ \__|\__,_||_| |_| \__||___/
 ;;
-;;====================================================================================================
+;;==============================================================================
 ;; The first thing we want to do is define some constants.
 ;; You may wonder -- if these things are constant, why
 ;; would we define a variable? Well one reason is to reduce
@@ -58,7 +58,7 @@
                          (/ tile-size 2)
                          "solid" "black"))
 
-(define background-with-vertical-walls
+(define background-with-walls
   (overlay/xy
    horizontal-wall 0 (- (* (+ .5 board-height) tile-size))
    (overlay/xy
@@ -68,24 +68,21 @@
      (overlay/xy
       vertical-wall (- (* (+ .5 board-width) tile-size)) 0 background-scene)))))
 
-(define background background-with-vertical-walls)
-
-;(define background-with-all-walls
-;  (overlay/xy
+(define background background-with-walls)
 
 ;; We will also define how many parts a food adds to a snake and
 ;; a spawn chance we will use later to randomly spawn food
 (define food-value 3)
 (define food-spawn-chance 50)
 
-;;====================================================================================================
+;;==============================================================================
 ;;  ____   _                       _                          
 ;; / ___| | |_  _ __  _   _   ___ | |_  _   _  _ __  ___  ___ 
 ;; \___ \ | __|| '__|| | | | / __|| __|| | | || '__|/ _ \/ __|
 ;;  ___) || |_ | |   | |_| || (__ | |_ | |_| || |  |  __/\__ \
 ;; |____/  \__||_|    \__,_| \___| \__| \__,_||_|   \___||___/
 ;;
-;;====================================================================================================
+;;==============================================================================
 ;; After we define our constants, we want to think of the minimal ammount
 ;; of data we need to simulate the game. Since this is a snake game, we need
 ;; to focus on a few things. We already have board dimensions taken care of,
@@ -97,7 +94,8 @@
 ;;   A buffer (how many parts we have to add to the snake)
 ;;     when a snake eats a food, it grows an extra part whenever it moves
 ;;     we need to keep track of how many parts we have to add
-;; That's really it. So, we need to figure out how to best represent those parts.
+;; That's really it.
+;; So, we need to figure out how to best represent those parts.
 
 ;; The first thing we can focus on are the body parts;
 ;; Since we are doing a grid version of the game, each part can be
@@ -157,14 +155,14 @@
 ;; It's as easy as that. We have defined all necessary structures
 ;; and constants for our snake game.
 
-;;====================================================================================================
+;;==============================================================================
 ;;  ____                         _               
 ;; |  _ \  _ __  __ _ __      __(_) _ __    __ _ 
 ;; | | | || '__|/ _` |\ \ /\ / /| || '_ \  / _` |
 ;; | |_| || |  | (_| | \ V  V / | || | | || (_| |
 ;; |____/ |_|   \__,_|  \_/\_/  |_||_| |_| \__, |
 ;;                                         |___/
-;;====================================================================================================
+;;==============================================================================
 ;; Alright! now it's time to start making things draw.
 
 ;; render-part: [part] [image] -> [image]
@@ -205,14 +203,14 @@
 (define (render-world sw)
   (render-foods-world sw (render-snake-world sw background)))
 
-;;====================================================================================================
+;;==============================================================================
 ;;  ___                       _   
 ;; |_ _| _ __   _ __   _   _ | |_ 
 ;;  | | | '_ \ | '_ \ | | | || __|
 ;;  | | | | | || |_) || |_| || |_ 
 ;; |___||_| |_|| .__/  \__,_| \__|
 ;;             |_|  
-;;====================================================================================================
+;;==============================================================================
 
 ;; change-snake-direction [snake] [direction] -> [snake]
 (define (change-snake-direction asnake direction)
@@ -238,19 +236,19 @@
      (change-snake-direction-world sw akey)]
     [else sw]))
 
-;;====================================================================================================
+;;==============================================================================
 ;;  _____  _        _    
 ;; |_   _|(_)  ___ | | __
 ;;   | |  | | / __|| |/ /
 ;;   | |  | || (__ |   < 
 ;;   |_|  |_| \___||_|\_\
 ;;
-;;====================================================================================================
+;;==============================================================================
                  
 ;; remove-last-part: [list-of-parts] -> [list-of-parts]
 (define (remove-last-part lop)
   (cond [(null? lop) '()] ;; should never happen... :)
-        [(null? (cdr lop)) '()] ;; if we have buffered parts, don't remove this on
+        [(null? (cdr lop)) '()] ;; if we have buffered parts, don't remove part
         [else (cons (car lop)
                     (remove-last-part (cdr lop)))]))
 
@@ -382,20 +380,24 @@
 
 
 
-;;====================================================================================================
+;;==============================================================================
 ;;   ____                            ___                    
 ;;  / ___|  __ _  _ __ ___    ___   / _ \ __   __ ___  _ __ 
 ;; | |  _  / _` || '_ ` _ \  / _ \ | | | |\ \ / // _ \| '__|
 ;; | |_| || (_| || | | | | ||  __/ | |_| | \ V /|  __/| |   
 ;;  \____| \__,_||_| |_| |_| \___|  \___/   \_/  \___||_|   
 ;;                                                          
-;;====================================================================================================
+;;==============================================================================
 
 
 ;; snake-collision-wall? [snake-world] -> [boolean]
 (define (snake-collision-wall? sw)
-  (or (not (< 0 (part-x (car (snake-parts (snake-world-snake sw)))) (+ 1 board-width)))
-      (not (< 0 (part-y (car (snake-parts (snake-world-snake sw)))) (+ 1 board-height)))))
+  (or (not (< 0
+              (part-x (car (snake-parts (snake-world-snake sw))))
+              (+ 1 board-width)))
+      (not (< 0
+              (part-y (car (snake-parts (snake-world-snake sw))))
+              (+ 1 board-height)))))
 
 ;; any-collides? [part] [list-of-parts] -> [boolean]
 (define (any-collides? head lop)
@@ -416,22 +418,22 @@
   (or (snake-collision-wall? sw)
       (snake-collision-snake? sw)))
 
-;;====================================================================================================
+;;==============================================================================
 ;;   ____                           _                         
 ;;  / ___|  __ _  _ __ ___    ___  | |     ___    ___   _ __  
 ;; | |  _  / _` || '_ ` _ \  / _ \ | |    / _ \  / _ \ | '_ \ 
 ;; | |_| || (_| || | | | | ||  __/ | |___| (_) || (_) || |_) |
 ;;  \____| \__,_||_| |_| |_| \___| |_____|\___/  \___/ | .__/ 
 ;;                                                     |_| 
-;;====================================================================================================
+;;==============================================================================
 
 ;; big-bang main fn
 (define (main sw)
   (big-bang sw
-            (on-tick handle-tick)
-            (to-draw render-world)
-            (on-key handle-key)
-            (stop-when handle-game-over)))
+            (on-tick handle-tick) ;; update game
+            (to-draw render-world) ;; draw game
+            (on-key handle-key) ;; handle key presses
+            (stop-when handle-game-over))) ;; handle game over states
 
 (main aworld) ;; run the game
 
