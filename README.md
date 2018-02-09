@@ -2,7 +2,12 @@
 A snake game written in Racket with readability for beginners in mind
 
 
+(images/game.png)
+
+
 Some musings are contained along with the code that will later be combined to create a simple tutorial. 
+
+
 
 
 # TODO
